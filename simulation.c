@@ -25,6 +25,7 @@ int8_t SREG;//8-bit status register
 short int pc = 0;//16 bit pc
 //0b0000000000000000
 
+//function to parse the instructions from the txt file and stores them in the instMem
 void parseAndStore(char* filename){
 
 }
@@ -70,6 +71,10 @@ void fetch(){
             decode(instruction);
             pc++;
         }
+}
+
+void execute(){
+    
 }
 
 void main(){
