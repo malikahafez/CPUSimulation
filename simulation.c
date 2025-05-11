@@ -222,20 +222,48 @@ void parseandStore(char* filename) {
 
 void decode(short int instruction){
     short int opcode = 0;//both I and R
-    short int r1 = 0;//both I and R
-    short int r2 = 0;//R
-    short int immediate = 0;//I
+    short int rS = 0;//both I and R
+    short int rT = 0;//R
+    short int immAdr = 0;//I
 
-    int8_t r1Value = 0;
-    int8_t r2Value = 0;
+    int8_t rSValue = 0;
+    int8_t rTValue = 0;
+
+    opcode = (0b1111000000000000 & instruction)>>12;
+    rS = (0b0000111111000000 & instruction)>>6;
+    rT = (0b0000000000111111 & instruction);
+    immAdr = (0b0000000000111111 & instruction);
+
+    rSValue = regFile[rS];//value in source register in register file
+    rTValue = regFile[rT];//value in target register in register file
+
+     printf("Instruction %i\n",pc);
+		printf("opcode = %i\n",opcode);
+		printf("rs = %i\n",rS);
+		printf("rt = %i\n",rT);
+		printf("immediate = %i\n",immAdr);
+		printf("value[rs] = %i\n",rSValue);
+		printf("value[rt] = %i\n",rTValue);
+		printf("---------- \n");
 
 }
 
-void alu(int8_t opA, int8_t opB, short int opcode){
-    int8_t output = 0;
+void alu(short int rs, short int rt, short int opcode){
+    short int output = 0;
+    //sreg flags
+    int8_t C = 0; 
+    int8_t V = 0; 
+    int8_t N = 0; 
+    int8_t S = 0; 
+    int8_t Z = 0; 
     //will change value of SREG based on the operation
     switch(opcode){
-        case 0: ; break;//add - affects C,V,N,S,Z
+        case 0: 
+            output = regFile[rs] + regFile[rt];
+            regFile[rs] = (int8_t)output;//rs = rs +rt
+            C =(int8_t)((output & 0b000000100000000)>>8);
+            
+            ; break;//add - affects C,V,N,S,Z
         case 1: ; break;//sub - affects V,N,S,Z
         case 2: ; break;//mul - affects N,Z
         case 3: ; break;//movi 
@@ -283,8 +311,15 @@ int main(){
     // short int parsed = op | r1 | r2;//0001000010000011 - 4227
     // printf("%d",parsed);
 
-    parseandStore("program.txt");
-    printf("%d", instMem[0]);
+    // parseandStore("program.txt");
+    // printf("%d", instMem[0]);
+
+    // decode(0b0001000010000011);
+
+    short int output = 258;
+    int8_t C =(int8_t)((output & 0b000000100000000)>>8);
+
+    printf("%d", C);
 
 
     return 0;
