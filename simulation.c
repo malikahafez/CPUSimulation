@@ -376,7 +376,9 @@ void decode(short int instruction){
 //FIXED 
 void execute(short int rs, short int rt_imm_addr, short int opcode) {
     short int output = 0;
-    int8_t r1val, r2val;
+    // int8_t r1val, r2val;
+    short int r1val;
+    short int r2val;
     
     //sreg flags
     //0b0000CVNSZ
@@ -463,9 +465,12 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
         break;
 
         case 7: // BR - does NOT affect flags
-            r1val = regFile[rs] << 6;
-            r2val = regFile[rt_imm_addr];
-            pc = r1val | r2val;
+            r1val = (0b0000000000000000 | regFile[rs])<<8;//0bRRRRRRRR00000000
+            r2val = 0b0000000000000000 | regFile[rt_imm_addr];//0b00000000RRRRRRRR
+            pc = r1val | r2val;//0bRRRRRRRRRRRRRRRR
+            // r1val = regFile[rs] << 6;
+            // r2val = regFile[rt_imm_addr];
+            // pc = r1val | r2val;
         break;
 
         case 8: // SAL - affects N,Z
@@ -635,6 +640,17 @@ int main(){
     execute(21, 50, 10); // LDR mem[50] -> r21
     printf("Data in r21: %d\n", regFile[21]);
     printf("Expected: 42\n");
+
+    printf("===== BR Test =====\n");
+    regFile[50] = 1;
+    regFile[51] = 3;
+    // pc = 100;
+    execute(50, 51, 7); // if r13 == 0, pc += 10
+    printf("New PC: %d\n", pc);
+    for (int i = 15; i >= 0; i--) {
+            printf("%d", (pc >> i) & 1);
+        }
+    printf("\nExpected: 259\n\n");
 
     return 0;
 
