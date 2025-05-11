@@ -248,9 +248,11 @@ void decode(short int instruction){
 
 }
 
-void alu(short int rs, short int rt, short int opcode){
+void execute(short int rs, short int rt_imm_addr, short int opcode){
+    //rt_imm_addr could also be immediate
     short int output = 0;
     //sreg flags
+    //0b0000CVNSZ
     int8_t C = 0; 
     int8_t V = 0; 
     int8_t N = 0; 
@@ -258,27 +260,87 @@ void alu(short int rs, short int rt, short int opcode){
     int8_t Z = 0; 
     //will change value of SREG based on the operation
     switch(opcode){
-        case 0: 
-            output = regFile[rs] + regFile[rt];
-            regFile[rs] = (int8_t)output;//rs = rs +rt
+        case 0: //add - affects C,V,N,S,Z
+            output = regFile[rs] + regFile[rt_imm_addr];
+            regFile[rs] = (int8_t)output;//rs = rs + rt_imm_addr
             C =(int8_t)((output & 0b000000100000000)>>8);
-            
-            ; break;//add - affects C,V,N,S,Z
-        case 1: ; break;//sub - affects V,N,S,Z
-        case 2: ; break;//mul - affects N,Z
-        case 3: ; break;//movi 
-        case 4: ; break;//beqz
-        case 5: ; break;//andi - affects N,Z
-        case 6: ; break;//eor - affects N,Z
-        case 7: ; break;//br
-        case 8: ; break;//sal - affects N,Z
-        case 9: ; break;//sar - affects N,Z
-        case 10: ; break;//ldr
-        case 11: ; break;//str
+            if((regFile[rs]>0 && regFile[rt_imm_addr]>0 && output<0) || (regFile[rs]<0 && regFile[rt_imm_addr]<0 && output>0) ){
+                V = 1;//00000001
+            }
+            if(output<0){N = 1;}
+            S = N ^ V;
+            if(output == 0){Z = 1;}
+        break;
+        case 1: //sub - affects V,N,S,Z
+            output = regFile[rs] - regFile[rt_imm_addr];
+            regFile[rs] = (int8_t)output;//rs = rs - rt_imm_addr
+            if((regFile[rs]>0 && regFile[rt_imm_addr]>0 && output<0) || (regFile[rs]<0 && regFile[rt_imm_addr]<0 && output>0) ){
+                V = 1;//00000001
+            }
+            if(output<0){N = 1;}
+            S = N ^ V;
+            if(output == 0){Z = 1;}
+        break;
+        case 2: //mul - affects N,Z
+            output = regFile[rs] * regFile[rt_imm_addr];
+            regFile[rs] = (int8_t)output;//rs = rs * rt_imm_addr
+            if(output<0){N = 1;}
+            if(output == 0){Z = 1;}
+        break;
+        case 3: //movi 
+            regFile[rs] = (int8_t)rt_imm_addr;
+        break;
+        case 4:  //beqz
+            if(regFile[rs] == 0){
+                pc = pc + rt_imm_addr;
+            }
+        break;
+        case 5: //andi - affects N,Z
+            output = regFile[rs] & (int8_t)rt_imm_addr;
+            regFile[rs] = (int8_t)output;//rs = rs AND rt_imm_addr
+            if(output < 0){N = 1;}
+            if(output == 0){Z = 1;}
+        break;
+        case 6: //eor - affects N,Z
+            output = regFile[rs] ^ regFile[rt_imm_addr];
+            regFile[rs] = (int8_t)output;//rs = rs XOR rt_imm_addr
+            if(output<0){N = 1;}
+            if(output == 0){Z = 1;}
+        break;
+        case 7: //br
+            short int r1val = ((short int) regFile[rs])<<6;//0bRRRRRRRR00000000
+            short int r2val = (short int) regFile[rs];//0b00000000RRRRRRRR
+            pc = r1val | r2val;//0bRRRRRRRRRRRRRRRR
+        break;
+        case 8:  //sal - affects N,Z
+            output = regFile[rs] << rt_imm_addr;
+            regFile[rs] = (int8_t)output;//rs = rs SAL rt_imm_addr
+            if(output<0){N = 1;}
+            if(output == 0){Z = 1;}
+
+        break;
+        case 9: //sar - affects N,Z
+            output = regFile[rs] >> rt_imm_addr;
+            regFile[rs] = (int8_t)output;//rs = rs SAR rt_imm_addr
+            if(output<0){N = 1;}
+            if(output == 0){Z = 1;}
+        break;
+        case 10: //ldr
+            regFile[rs] = dataMem[rt_imm_addr];
+        break;
+        case 11: //str
+            dataMem[rt_imm_addr] = regFile[rs];
+        break;
         default:
             printf("operation doesn't exist");
             break;
     }
+    //should sreg be updated with every inst execution or retain old values when not updated????
+     C = C<<4;
+     V = V<<3;
+     N = N<<2;
+     S = S<<1;
+    SREG = C | V | N | S | Z;
 
 }
 
