@@ -378,8 +378,13 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
     short int output = 0;
     int8_t r1val, r2val;
     
-    // Status flags
-    uint8_t C = 0, V = 0, N = 0, S = 0, Z = 0;
+    //sreg flags
+    //0b0000CVNSZ
+        uint8_t C = 0; 
+        uint8_t V = 0; 
+        uint8_t N = 0; 
+        uint8_t S = 0; 
+        uint8_t Z = 0; 
     // bool sreg_should_update = false;
 
     switch(opcode) {
