@@ -353,9 +353,6 @@ void fetch(){
         }
 }
 
-void execute(){
-    
-}
 
 int main(){
     // char test[] = "R1";
