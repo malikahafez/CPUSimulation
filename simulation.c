@@ -387,6 +387,8 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
         uint8_t N = 0; 
         uint8_t S = 0; 
         uint8_t Z = 0; 
+    //will change value of SREG based on the operation
+
     // bool sreg_should_update = false;
 
     switch(opcode) {
