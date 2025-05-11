@@ -264,7 +264,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode){
             output = regFile[rs] + regFile[rt_imm_addr];
             regFile[rs] = (int8_t)output;//rs = rs + rt_imm_addr
             C =(int8_t)((output & 0b000000100000000)>>8);
-            if((regFile[rs]>0 && regFile[rt_imm_addr]>0 && output<0) || (regFile[rs]<0 && regFile[rt_imm_addr]<0 && output>0) ){
+            if((regFile[rs]>0 && regFile[rt_imm_addr]>0 && (int8_t)output<0) || (regFile[rs]<0 && regFile[rt_imm_addr]<0 && (int8_t)output>0) ){
                 V = 1;//00000001
             }
             if(output<0){N = 1;}
@@ -274,7 +274,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode){
         case 1: //sub - affects V,N,S,Z
             output = regFile[rs] - regFile[rt_imm_addr];
             regFile[rs] = (int8_t)output;//rs = rs - rt_imm_addr
-            if((regFile[rs]>0 && regFile[rt_imm_addr]>0 && output<0) || (regFile[rs]<0 && regFile[rt_imm_addr]<0 && output>0) ){
+            if((regFile[rs]>0 && regFile[rt_imm_addr]>0 && (int8_t)output<0) || (regFile[rs]<0 && regFile[rt_imm_addr]<0 && (int8_t)output>0) ){
                 V = 1;//00000001
             }
             if(output<0){N = 1;}
