@@ -6,7 +6,16 @@
 
 //clock cycle counter
 int cycles = 0;
-
+//struct for fetch-decode
+typedef struct {
+    short int instruction;
+    bool valid;
+} IF_ID_Stage;
+//struct for decode-execute
+typedef struct {
+    short int instruction;
+    bool valid;
+} ID_EX_Stage;
 //instruction memory
 short int instMem[1024] = {0};//16-bit inst
 int numInst = sizeof(instMem)/sizeof(short int);
@@ -215,8 +224,10 @@ void parseandStore(char* filename) {
         }  
         //store in instruction memory
         instMem[instPtr++] = parsed;
+        cycles++;
         
     }
+    
     
 
 }
@@ -522,15 +533,50 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
 
 void fetch(){
     short int instruction = 0;
-        for(int i =0;i<numInst;i++){
+        for(int i =0;i<cycles;i++){
             instruction = instMem[pc];
+
             decode(instruction);
             pc++;
+             
         }
+       
+}
+// Global or static variables
+IF_ID_Stage if_id = {.valid = false};
+ID_EX_Stage id_ex = {.valid = false};
+
+
+void pipeline() {
+    // Execute stage
+    if (id_ex.valid) {
+        short int opcode = (0b1111000000000000 & id_ex.instruction)>>12;
+        short int rs = (0b0000111111000000 & id_ex.instruction)>>6;
+        short int rt_imm_addr = (0b0000000000111111 & id_ex.instruction);
+        execute(rs, rt_imm_addr, opcode);
+        id_ex.valid = false; // Instruction has been executed
+    }
+
+    // Decode stage
+    if (if_id.valid) {
+        id_ex.instruction = if_id.instruction;
+        id_ex.valid = true;
+        decode(id_ex.instruction);
+        if_id.valid = false;
+    }
+
+    // Fetch stage
+    if (pc < (3+(cycles-1)*1)) {
+        if_id.instruction = instMem[pc++];
+        if_id.valid = true;
+    }
 }
 
 
+
+
 int main(){
+
     // char test[] = "R1";
     // char test2[] = "R12";
 
@@ -546,8 +592,13 @@ int main(){
     // short int parsed = op | r1 | r2;//0001000010000011 - 4227
     // printf("%d",parsed);
 
-    // parseandStore("program.txt");
-    // printf("%d", instMem[0]);
+     parseandStore("program.txt");
+
+     while (pc < 3) {
+        printf("\n--- Cycle %d ---\n", pc + 1);
+        pipeline();
+    }
+   
 
     // decode(0b0001000010000011);
 
@@ -562,97 +613,97 @@ int main(){
     // printf("%d\n",(uint8_t)((output & 0b000000100000000)>>8)&1);
     // uint8_t carry = (output >> 8) & 1;
 
-    printf("===== ADD Test (Positive Overflow) =====\n");
-    regFile[1] = 127; // Max positive value for int8_t
-    regFile[2] = 1;
-    execute(1, 2, 0); // ADD r1 = r1 + r2
-    printf("Result in r1: %d\n", regFile[1]);
-    printf("Expected: -128, V=1, C=0, N=1, S=0, Z=0\n\n");
+    // printf("===== ADD Test (Positive Overflow) =====\n");
+    // regFile[1] = 127; // Max positive value for int8_t
+    // regFile[2] = 1;
+    // execute(1, 2, 0); // ADD r1 = r1 + r2
+    // printf("Result in r1: %d\n", regFile[1]);
+    // printf("Expected: -128, V=1, C=0, N=1, S=0, Z=0\n\n");
 
-    printf("===== ADD Test (Negative Overflow and Carry) =====\n");
-    regFile[22] = -128; // Max positive value for int8_t
-    regFile[23] = -128;
-    execute(22, 23, 0); // ADD r1 = r1 + r2
-    printf("Result in r1: %d\n", regFile[1]);
-    printf("Expected: 0, V=1, C=1, N=0, S=1, Z=1\n\n");
+    // printf("===== ADD Test (Negative Overflow and Carry) =====\n");
+    // regFile[22] = -128; // Max positive value for int8_t
+    // regFile[23] = -128;
+    // execute(22, 23, 0); // ADD r1 = r1 + r2
+    // printf("Result in r1: %d\n", regFile[1]);
+    // printf("Expected: 0, V=1, C=1, N=0, S=1, Z=1\n\n");
 
-    printf("===== ADD Test (Carry with no Overflow) =====\n");
-    regFile[24] = 64; // Max positive value for int8_t
-    regFile[25] = -64;
-    execute(24, 25, 0); // ADD r1 = r1 + r2
-    printf("Result in r1: %d\n", regFile[1]);
-    printf("Expected: 0, V=0, C=1, N=0, S=0, Z=1\n\n");
+    // printf("===== ADD Test (Carry with no Overflow) =====\n");
+    // regFile[24] = 64; // Max positive value for int8_t
+    // regFile[25] = -64;
+    // execute(24, 25, 0); // ADD r1 = r1 + r2
+    // printf("Result in r1: %d\n", regFile[1]);
+    // printf("Expected: 0, V=0, C=1, N=0, S=0, Z=1\n\n");
 
-    printf("===== ADD Test (no Carry with Overflow) =====\n");
-    regFile[25] = 64; // Max positive value for int8_t
-    regFile[26] = 64;
-    execute(25, 26, 0); // ADD r1 = r1 + r2
-    printf("Result in r1: %d\n", regFile[1]);
-    printf("Expected: 0, V=1, C=0, N=1, S=0, Z=0\n\n");
+    // printf("===== ADD Test (no Carry with Overflow) =====\n");
+    // regFile[25] = 64; // Max positive value for int8_t
+    // regFile[26] = 64;
+    // execute(25, 26, 0); // ADD r1 = r1 + r2
+    // printf("Result in r1: %d\n", regFile[1]);
+    // printf("Expected: 0, V=1, C=0, N=1, S=0, Z=0\n\n");
 
-    printf("===== SUB Test (Negative Result) =====\n");
-    regFile[3] = -50;
-    regFile[4] = 30;
-    execute(3, 4, 1); // SUB r3 = r3 - r4
-    printf("Result in r3: %d\n", regFile[3]);
-    printf("Expected: -80, V=0, N=1, S=0, Z=0\n\n");
+    // printf("===== SUB Test (Negative Result) =====\n");
+    // regFile[3] = -50;
+    // regFile[4] = 30;
+    // execute(3, 4, 1); // SUB r3 = r3 - r4
+    // printf("Result in r3: %d\n", regFile[3]);
+    // printf("Expected: -80, V=0, N=1, S=0, Z=0\n\n");
 
-    printf("===== ANDI Test =====\n");
-    regFile[5] = 0b10101010;
-    execute(5, 0b00001111, 5); // ANDI r5 = r5 & 0b00001111
-    printf("Result in r5: %d\n", regFile[5]);
-    printf("Expected: 0b00001010, N=0, Z=0\n\n");
+    // printf("===== ANDI Test =====\n");
+    // regFile[5] = 0b10101010;
+    // execute(5, 0b00001111, 5); // ANDI r5 = r5 & 0b00001111
+    // printf("Result in r5: %d\n", regFile[5]);
+    // printf("Expected: 0b00001010, N=0, Z=0\n\n");
 
-    printf("===== EOR Test =====\n");
-    regFile[6] = 0b11110000;
-    regFile[7] = 0b00001111;
-    execute(6, 7, 6); // EOR r6 = r6 ^ r7
-    printf("Result in r6: %d\n", regFile[6]);
-    printf("Expected: 0b11111111 (-1), N=1, Z=0\n\n");
+    // printf("===== EOR Test =====\n");
+    // regFile[6] = 0b11110000;
+    // regFile[7] = 0b00001111;
+    // execute(6, 7, 6); // EOR r6 = r6 ^ r7
+    // printf("Result in r6: %d\n", regFile[6]);
+    // printf("Expected: 0b11111111 (-1), N=1, Z=0\n\n");
 
-    printf("===== MOVI Test =====\n");
-    execute(10, 123, 3); // MOVI r10 = 123
-    printf("Result in r10: %d\n", regFile[10]);
-    printf("Expected: 123\n\n");
+    // printf("===== MOVI Test =====\n");
+    // execute(10, 123, 3); // MOVI r10 = 123
+    // printf("Result in r10: %d\n", regFile[10]);
+    // printf("Expected: 123\n\n");
 
-    printf("===== SAL Test =====\n");
-    regFile[11] = 0b00000001;
-    execute(11, 2, 8); // SAL r11 = r11 << 2
-    printf("Result in r11: %d\n", regFile[11]);
-    printf("Expected: 4, N=0, Z=0\n\n");
+    // printf("===== SAL Test =====\n");
+    // regFile[11] = 0b00000001;
+    // execute(11, 2, 8); // SAL r11 = r11 << 2
+    // printf("Result in r11: %d\n", regFile[11]);
+    // printf("Expected: 4, N=0, Z=0\n\n");
 
-    printf("===== SAR Test =====\n");
-    regFile[12] = -16; // 0b11110000
-    execute(12, 2, 9); // SAR r12 = r12 >> 2
-    printf("Result in r12: %d\n", regFile[12]);
-    printf("Expected: -4, N=1, Z=0\n\n");
+    // printf("===== SAR Test =====\n");
+    // regFile[12] = -16; // 0b11110000
+    // execute(12, 2, 9); // SAR r12 = r12 >> 2
+    // printf("Result in r12: %d\n", regFile[12]);
+    // printf("Expected: -4, N=1, Z=0\n\n");
 
-    printf("===== BEQZ Test =====\n");
-    regFile[13] = 0;
-    pc = 100;
-    execute(13, 10, 4); // if r13 == 0, pc += 10
-    printf("New PC: %d\n", pc);
-    printf("Expected: 110\n\n");
-
-    printf("===== LDR/STR Test =====\n");
-    regFile[20] = 42;
-    execute(20, 50, 11); // STR r20 -> mem[50]
-    printf("Data in mem[50]: %d\n", dataMem[50]);
-    regFile[21] = 0;
-    execute(21, 50, 10); // LDR mem[50] -> r21
-    printf("Data in r21: %d\n", regFile[21]);
-    printf("Expected: 42\n");
-
-    printf("===== BR Test =====\n");
-    regFile[50] = 1;
-    regFile[51] = 3;
+    // printf("===== BEQZ Test =====\n");
+    // regFile[13] = 0;
     // pc = 100;
-    execute(50, 51, 7); // if r13 == 0, pc += 10
-    printf("New PC: %d\n", pc);
-    for (int i = 15; i >= 0; i--) {
-            printf("%d", (pc >> i) & 1);
-        }
-    printf("\nExpected: 259\n\n");
+    // execute(13, 10, 4); // if r13 == 0, pc += 10
+    // printf("New PC: %d\n", pc);
+    // printf("Expected: 110\n\n");
+
+    // printf("===== LDR/STR Test =====\n");
+    // regFile[20] = 42;
+    // execute(20, 50, 11); // STR r20 -> mem[50]
+    // printf("Data in mem[50]: %d\n", dataMem[50]);
+    // regFile[21] = 0;
+    // execute(21, 50, 10); // LDR mem[50] -> r21
+    // printf("Data in r21: %d\n", regFile[21]);
+    // printf("Expected: 42\n");
+
+    // printf("===== BR Test =====\n");
+    // regFile[50] = 1;
+    // regFile[51] = 3;
+    // // pc = 100;
+    // execute(50, 51, 7); // if r13 == 0, pc += 10
+    // printf("New PC: %d\n", pc);
+    // for (int i = 15; i >= 0; i--) {
+    //         printf("%d", (pc >> i) & 1);
+    //     }
+    // printf("\nExpected: 259\n\n");
 
     return 0;
 
