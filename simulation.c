@@ -642,6 +642,7 @@ void printRegisters(){
     printf("+---------------------------------------------------------------+\n");
     printf("|            Register             |            Value            |\n");
     printf("+---------------------------------------------------------------+\n");
+    //add pc and sreg****
     for(int i = 0; i<numReg; i++){
         if(i<10){
             if(regFile[i]<10){
