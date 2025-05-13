@@ -697,10 +697,42 @@ int main(){
 
     }
 
-
-
     //print full content of inst memory after last clock cycle:
+    printf("+---------------------------------------------------------------+\n");
+    printf("|      Content of all Instruction Memory after Simulation       |\n");
+    printf("+---------------------------------------------------------------+\n");
+    printf("|            Position             |            Value            |\n");
+    printf("+---------------------------------------------------------------+\n");
+    for(int i = 0; i<numInst; i++){
+        if(i<1000){
+            if(instMem[i]<10){
+                printf("|               MEM[%d]            |              %d              |\n",i, instMem[i]);
+                printf("|---------------------------------------------------------------|\n");
 
+            }
+            else{
+                printf("|               MEM[%d]            |             %d              |\n",i, instMem[i]);
+                printf("|---------------------------------------------------------------|\n");
+
+            }
+            
+
+        }
+        else{
+            if(instMem[i]<10){
+                printf("|               MEM[%d]           |              %d              |\n",i, instMem[i]);
+                printf("|---------------------------------------------------------------|\n");
+            }
+            else{
+                printf("|               MEM[%d]           |             %d              |\n",i, instMem[i]);
+                printf("|---------------------------------------------------------------|\n");
+
+            }
+            
+
+        }
+        
+    }
 
     //print full content of data memory after last clock cycle:
 
