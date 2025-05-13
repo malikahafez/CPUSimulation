@@ -438,7 +438,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
 
             regFile[rs] = res;
             printf("R%d value changed to %d\n",rs,res);
-            V = ((a > 0 && b < 0 && res <= 0) || (a < 0 && b > 0 && res >= 0));
+            V = ((a > 0 && b > 0 && res <= 0) || (a < 0 && b < 0 && res >= 0));
             N = (res < 0);
             Z = (res == 0);
             S = N ^ V;
@@ -681,22 +681,22 @@ int main(){
     // printf("===== ADD Test (Negative Overflow and Carry) =====\n");
     // regFile[22] = -128; // Max positive value for int8_t
     // regFile[23] = -128;
-    // execute(22, 23, 0); // ADD r1 = r1 + r2
-    // printf("Result in r1: %d\n", regFile[1]);
+    // execute(22, 23, 0); // ADD r22 = r22 + r23
+    // printf("Result in r22: %d\n", regFile[22]);
     // printf("Expected: 0, V=1, C=1, N=0, S=1, Z=1\n\n");
 
     // printf("===== ADD Test (Carry with no Overflow) =====\n");
     // regFile[24] = 64; // Max positive value for int8_t
     // regFile[25] = -64;
     // execute(24, 25, 0); // ADD r1 = r1 + r2
-    // printf("Result in r1: %d\n", regFile[1]);
+    // printf("Result in r24: %d\n", regFile[24]);
     // printf("Expected: 0, V=0, C=1, N=0, S=0, Z=1\n\n");
 
     // printf("===== ADD Test (no Carry with Overflow) =====\n");
     // regFile[25] = 64; // Max positive value for int8_t
     // regFile[26] = 64; 
     // execute(25, 26, 0); // ADD r1 = r1 + r2
-    // printf("Result in r1: %d\n", regFile[1]);
+    // printf("Result in r25: %d\n", regFile[25]);
     // printf("Expected: 0, V=1, C=0, N=1, S=0, Z=0\n\n");
 
     // printf("===== SUB Test (Negative Result) =====\n");
@@ -705,6 +705,13 @@ int main(){
     // execute(3, 4, 1); // SUB r3 = r3 - r4
     // printf("Result in r3: %d\n", regFile[3]);
     // printf("Expected: -80, V=0, N=1, S=0, Z=0\n\n");
+
+    // printf("===== SUB Test ( Overflow ) =====\n");
+    // regFile[28] = -128;
+    // regFile[29] = 128;
+    // execute(28, 29, 1); // SUB r28 = r28 - r29
+    // printf("Result in r28: %d\n", regFile[28]);
+    // printf("Expected: 0, V=1, N=0, S=1, Z=0\n\n");
 
     // printf("===== ANDI Test =====\n");
     // regFile[5] = 0b10101010;
