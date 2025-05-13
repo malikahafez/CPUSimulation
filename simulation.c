@@ -550,6 +550,7 @@ ID_EX_Stage id_ex = {.valid = false};
 void pipeline() {
     // Execute stage
     if (id_ex.valid) {
+        printf("Executing instruction: %d\n", id_ex.instruction);
         short int opcode = (0b1111000000000000 & id_ex.instruction)>>12;
         short int rs = (0b0000111111000000 & id_ex.instruction)>>6;
         short int rt_imm_addr = (0b0000000000111111 & id_ex.instruction);
@@ -559,7 +560,9 @@ void pipeline() {
 
     // Decode stage
     if (if_id.valid) {
+    
         id_ex.instruction = if_id.instruction;
+           printf("Decoding instruction: %d\n", id_ex.instruction);
         id_ex.valid = true;
         decode(id_ex.instruction);
         if_id.valid = false;
@@ -567,6 +570,7 @@ void pipeline() {
 
     // Fetch stage
     if (pc < (3+(cycles-1)*1)) {
+        printf("Fetching instruction at PC: %d\n", pc);
         if_id.instruction = instMem[pc++];
         if_id.valid = true;
     }
@@ -594,7 +598,7 @@ int main(){
 
      parseandStore("program.txt");
 
-     while (pc < 3) {
+     while (pc < (3+(cycles-1)*1)) {
         printf("\n--- Cycle %d ---\n", pc + 1);
         pipeline();
     }
