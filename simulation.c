@@ -471,10 +471,10 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             printf("BEQZ instruction using R%d and immediate = %d:\n", rs, rt_imm_addr);
             if (regFile[rs] == 0) {
                 pc += rt_imm_addr;
-                printf("Branch occured: pc value changed to %d\n",pc);
+                printf("Branch occured: PC value changed to %d\n",pc);
             }
             else{
-                printf("Branch did NOT occur: pc value did NOT change\n");
+                printf("Branch did NOT occur: PC value did NOT change\n");
             }
             
 
@@ -511,7 +511,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             r1val = (0b0000000000000000 | regFile[rs])<<8;//0bRRRRRRRR00000000
             r2val = 0b0000000000000000 | regFile[rt_imm_addr];//0b00000000RRRRRRRR
             pc = r1val | r2val;//0bRRRRRRRRRRRRRRRR
-            printf("pc value changed to %d\n",pc);
+            printf("PC value changed to %d\n",pc);
             // r1val = regFile[rs] << 6;
             // r2val = regFile[rt_imm_addr];
             // pc = r1val | r2val;
@@ -557,7 +557,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
         break;
 
         default:
-            printf("Operation does not exist.\n");
+            printf("Operation does NOT exist.\n");
             break;
     }
 
@@ -580,7 +580,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             printf("\n");
         }
         else{
-            printf("SREG Value did not change\n");
+            printf("SREG Value did NOT change\n");
         }
         
 
@@ -763,12 +763,30 @@ int main(){
     // regFile[50] = 1;
     // regFile[51] = 3;
     // // pc = 100;
-    // execute(50, 51, 7); // if r13 == 0, pc += 10
+    // execute(50, 51, 7); // pc = r50 || r51 = 00000001 || 00000011
     // printf("New PC: %d\n", pc);
     // for (int i = 15; i >= 0; i--) {
     //         printf("%d", (pc >> i) & 1);
     //     }
     // printf("\nExpected: 259\n\n");
+    // printf("===== MUL Test (Negative Result) =====\n");
+    // regFile[30] = 2; 
+    // regFile[31] = -3; 
+    // execute(30, 31, 2); // MUL r30 = r30 + r31
+    // printf("Result in r30: %d\n", regFile[30]);
+    // printf("Expected: 0, N=1, Z=0\n\n");
+    // printf("===== MUL Test (Positive Result) =====\n");
+    // regFile[32] = 2; 
+    // regFile[33] = 3; 
+    // execute(32, 33, 2); // MUL r32 = r32 + r33
+    // printf("Result in r32: %d\n", regFile[32]);
+    // printf("Expected: 0, N=0, Z=0\n\n");
+    // printf("===== MUL Test (Zero Result) =====\n");
+    // regFile[34] = 2; 
+    // regFile[35] = 0; 
+    // execute(34, 35, 2); // MUL r34 = r34 + r35
+    // printf("Result in r34: %d\n", regFile[34]);
+    // printf("Expected: 0, N=0, Z=1\n\n");
 
     return 0;
 
