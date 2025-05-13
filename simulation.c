@@ -672,24 +672,24 @@ int main(){
     for(int i = 0; i<numReg; i++){
         if(i<10){
             if(regFile[i]<10){
-                printf("|            R%d                   |              %d              |\n",i, regFile[i]);
+                printf("|               R%d                |              %d              |\n",i, regFile[i]);
                 printf("|---------------------------------------------------------------|\n");
 
             }
             else{
-                printf("|            R%d                   |             %d              |\n",i,regFile[i]);
+                printf("|               R%d                |             %d              |\n",i,regFile[i]);
                 printf("|---------------------------------------------------------------|\n");
             }
             
         }
         else{
             if(regFile[i]<10){
-                printf("|            R%d                  |              %d              |\n",i, regFile[i]);
+                printf("|               R%d               |              %d              |\n",i, regFile[i]);
                 printf("|---------------------------------------------------------------|\n");
 
             }
             else{
-                 printf("|            R%d                  |             %d              |\n",i, regFile[i]);
+                 printf("|               R%d               |             %d              | \n",i, regFile[i]);
                     printf("|---------------------------------------------------------------|\n");
             }
            
@@ -699,7 +699,11 @@ int main(){
 
 
 
-    //print full content of memory after last clock cycle:
+    //print full content of inst memory after last clock cycle:
+
+
+    //print full content of data memory after last clock cycle:
+
    
 
     // decode(0b0001000010000011);
