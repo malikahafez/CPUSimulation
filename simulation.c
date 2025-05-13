@@ -263,7 +263,7 @@ void decode(short int instruction){
 		printf("immediate = %i\n",immAdr);
 		printf("value[rs] = %i\n",rSValue);
 		printf("value[rt] = %i\n",rTValue);
-		printf("---------- \n");
+		printf("------------------------------ \n");
 
 }
 
@@ -419,7 +419,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             int8_t res = a + b;
 
             regFile[rs] = res;
-            printf("R%d value changed to %d\n",rs,res);
+            printf("        R%d value changed to %d\n",rs,res);
             C = (result > 0xFF);
             V = ((a > 0 && b > 0 && res <= 0) || (a < 0 && b < 0 && res >= 0));
             N = (res < 0);
@@ -437,7 +437,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             int8_t res = a - b;
 
             regFile[rs] = res;
-            printf("R%d value changed to %d\n",rs,res);
+            printf("        R%d value changed to %d\n",rs,res);
             V = ((a > 0 && b > 0 && res <= 0) || (a < 0 && b < 0 && res >= 0));
             N = (res < 0);
             Z = (res == 0);
@@ -453,7 +453,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             int16_t result = regFile[rs] * regFile[rt_imm_addr];
             int8_t res = (int8_t)result;
             regFile[rs] = res;
-            printf("R%d value changed to %d\n",rs,res);
+            printf("        R%d value changed to %d\n",rs,res);
             N = (res < 0);
             Z = (res == 0);
             sreg_updated = true;
@@ -464,17 +464,17 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
         case 3: // MOVI - does NOT affect flags
             printf("MOVI instruction between R%d = %d and immediate = %d:\n", rs, rt_imm_addr,regFile[rs]);
             regFile[rs] = (int8_t)rt_imm_addr;
-            printf("R%d value changed to %d\n",rs,(int8_t)rt_imm_addr);
+            printf("        R%d value changed to %d\n",rs,(int8_t)rt_imm_addr);
         break;
 
         case 4: // BEQZ - does NOT affect flags
             printf("BEQZ instruction using R%d = %d and immediate = %d:\n", rs, rt_imm_addr, regFile[rs]);
             if (regFile[rs] == 0) {
                 pc += rt_imm_addr;
-                printf("Branch occured: PC value changed to %d\n",pc);
+                printf("        Branch occured: PC value changed to %d\n",pc);
             }
             else{
-                printf("Branch did NOT occur: PC value did NOT change\n");
+                printf("        Branch did NOT occur: PC value did NOT change\n");
             }
             
 
@@ -485,7 +485,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             printf("ANDI instruction between R%d = %d and immediate = %d:\n", rs, rt_imm_addr, regFile[rs]);
             int8_t res = regFile[rs] & (int8_t)rt_imm_addr;
             regFile[rs] = res;
-            printf("R%d value changed to %d\n",rs,res);
+            printf("        R%d value changed to %d\n",rs,res);
             N = (res < 0);
             Z = (res == 0);
             sreg_updated = true;
@@ -498,7 +498,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             printf("EOR instruction between R%d = %d and R%d = %d:\n", rs, rt_imm_addr,regFile[rs],regFile[rt_imm_addr]);
             int8_t res = regFile[rs] ^ regFile[rt_imm_addr];
             regFile[rs] = res;
-            printf("R%d value changed to %d\n",rs,res);
+            printf("        R%d value changed to %d\n",rs,res);
             N = (res < 0);
             Z = (res == 0);
             sreg_updated = true;
@@ -511,7 +511,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             r1val = (0b0000000000000000 | regFile[rs])<<8;//0bRRRRRRRR00000000
             r2val = 0b0000000000000000 | regFile[rt_imm_addr];//0b00000000RRRRRRRR
             pc = r1val | r2val;//0bRRRRRRRRRRRRRRRR
-            printf("PC value changed to %d\n",pc);
+            printf("        PC value changed to %d\n",pc);
             // r1val = regFile[rs] << 6;
             // r2val = regFile[rt_imm_addr];
             // pc = r1val | r2val;
@@ -522,7 +522,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             printf("SAL instruction between R%d = %d and immediate = %d:\n", rs, rt_imm_addr, regFile[rs]);
             int8_t res = regFile[rs] << rt_imm_addr;
             regFile[rs] = res;
-            printf("R%d value changed to %d\n",rs,res);
+            printf("        R%d value changed to %d\n",rs,res);
             N = (res < 0);
             Z = (res == 0);
             sreg_updated = true;
@@ -535,7 +535,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             printf("SAR instruction between R%d = %d and immediate = %d:\n", rs, rt_imm_addr, regFile[rs]);
             int8_t res = regFile[rs] >> rt_imm_addr;
             regFile[rs] = res;
-            printf("R%d value changed to %d\n",rs,res);
+            printf("        R%d value changed to %d\n",rs,res);
             N = (res < 0);
             Z = (res == 0);
             sreg_updated = true;
@@ -546,14 +546,14 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
         case 10: // LDR - does NOT affect flags
             printf("LDR instruction using R%d = %d and address = %d:\n", rs, rt_imm_addr, regFile[rs]);
             regFile[rs] = dataMem[rt_imm_addr];
-            printf("R%d value changed to %d\n",rs, dataMem[rt_imm_addr]);
+            printf("        R%d value changed to %d\n",rs, dataMem[rt_imm_addr]);
 
         break;
 
         case 11: // STR - does NOT affect flags
             printf("STR instruction using R%d = %d and address = %d:\n", rs, rt_imm_addr, regFile[rs]);
             dataMem[rt_imm_addr] = regFile[rs];
-            printf("Value in position %d in data memory changed to %d\n",rt_imm_addr, regFile[rs]);
+            printf("        Value in position %d in data memory changed to %d\n",rt_imm_addr, regFile[rs]);
         break;
 
         default:
@@ -563,15 +563,16 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
 
     // Update SREG 
         if(sreg_updated == true){
-            printf("Carry (C) Flag:%d\n", C);
+            printf("SREG Value changed:\n");
+            printf("    Carry(C) Flag:%d\n", C);
             C = C<<4;
-            printf("Overflow (V) Flag:%d \n", V);
+            printf("    Overflow(V) Flag:%d \n", V);
             V = V<<3;
-            printf("Negative (N) Flag:%d\n", N);
+            printf("    Negative(N) Flag:%d\n", N);
             N = N<<2;
-           printf("Sign (S) Flag:%d\n", S);
+           printf("    Sign(S) Flag:%d\n", S);
             S = S<<1;
-            printf("Zero (Z) Flag:%d\n",Z);
+            printf("    Zero(Z) Flag:%d\n",Z);
             SREG = C | V | N | S | Z;
             printf("SREG |0|0|0|C|V|N|S|Z|: ");
             for (int i = 7; i >= 0; i--) {
@@ -604,11 +605,12 @@ void fetch(){
 void pipeline() {
     // Execute stage
     if (id_ex.valid) {
-        printf("Executing instruction: %d\n", id_ex.instruction);
+        printf("Executing instruction: %d \n", id_ex.instruction);
         short int opcode = (0b1111000000000000 & id_ex.instruction)>>12;
         short int rs = (0b0000111111000000 & id_ex.instruction)>>6;
         short int rt_imm_addr = (0b0000000000111111 & id_ex.instruction);
         execute(rs, rt_imm_addr, opcode);
+        printf("------------------------------\n");
         id_ex.valid = false; // Instruction has been executed
     }
 
@@ -616,7 +618,7 @@ void pipeline() {
     if (if_id.valid) {
     
         id_ex.instruction = if_id.instruction;
-           printf("Decoding instruction: %d\n", id_ex.instruction);
+           printf("Decoding instruction: %d \n", id_ex.instruction);
         id_ex.valid = true;
         decode(id_ex.instruction);
         if_id.valid = false;
@@ -624,7 +626,8 @@ void pipeline() {
 
     // Fetch stage
     if (pc < (3+(cycles-1)*1)) {
-        printf("Fetching instruction at PC: %d\n", pc);
+        printf("Fetching instruction at PC: %d \n", pc);
+        printf("------------------------------\n");
         if_id.instruction = instMem[pc++];
         if_id.valid = true;
     }
@@ -653,7 +656,7 @@ int main(){
      parseandStore("program.txt");
 
      while (pc < (3+(cycles-1)*1)) {
-        printf("\n--- Cycle %d ---\n", pc + 1);
+        printf("\n      --- Cycle %d ---\n", pc + 1);
         pipeline();
     }
    
