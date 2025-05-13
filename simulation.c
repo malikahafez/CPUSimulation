@@ -31,10 +31,13 @@ int instPtr = 0;
 
 //data memory
 int8_t dataMem[2048] = {0};//8-bit data
+int numData = sizeof(dataMem)/sizeof(int8_t);
 //0b00000000
 
 //register file (64 GPRs)
 int8_t regFile[64] = {0};//8-bit registers
+int numReg = sizeof(regFile)/sizeof(int8_t);
+
 //0b00000000
 
 //status reg
@@ -659,6 +662,44 @@ int main(){
         printf("\n      --- Cycle %d ---\n", pc + 1);
         pipeline();
     }
+
+    //print all register values after last clock cycle:
+    printf("+---------------------------------------------------------------+\n");
+    printf("|           Content of all Registers after Simulation           |\n");
+    printf("+---------------------------------------------------------------+\n");
+    printf("|            Register             |            Value            |\n");
+    printf("+---------------------------------------------------------------+\n");
+    for(int i = 0; i<numReg; i++){
+        if(i<10){
+            if(regFile[i]<10){
+                printf("|            R%d                   |              %d              |\n",i, regFile[i]);
+                printf("|---------------------------------------------------------------|\n");
+
+            }
+            else{
+                printf("|            R%d                   |             %d              |\n",i,regFile[i]);
+                printf("|---------------------------------------------------------------|\n");
+            }
+            
+        }
+        else{
+            if(regFile[i]<10){
+                printf("|            R%d                  |              %d              |\n",i, regFile[i]);
+                printf("|---------------------------------------------------------------|\n");
+
+            }
+            else{
+                 printf("|            R%d                  |             %d              |\n",i, regFile[i]);
+                    printf("|---------------------------------------------------------------|\n");
+            }
+           
+        }
+
+    }
+
+
+
+    //print full content of memory after last clock cycle:
    
 
     // decode(0b0001000010000011);
