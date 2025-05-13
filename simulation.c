@@ -636,34 +636,7 @@ void pipeline() {
     }
 }
 
-
-
-
-int main(){
-
-    // char test[] = "R1";
-    // char test2[] = "R12";
-
-    // int num1 = atoi(test + 1);
-    // int num2 = atoi(test2 +1);
-
-    // printf("R%d",num1);
-    // printf("R%d",num2);
-
-    // short int op = 1<<12;//0001000000000000
-    // short int r1 = 2<<6;//0000000010000000
-    // short int r2 = 3;//0000000000000011
-    // short int parsed = op | r1 | r2;//0001000010000011 - 4227
-    // printf("%d",parsed);
-    
-     parseandStore("program.txt");
-
-     while (pc < (3+(cycles-1)*1)) {
-        printf("\n      --- Cycle %d ---\n", pc + 1);
-        pipeline();
-    }
-
-    //print all register values after last clock cycle:
+void printRegisters(){
     printf("+---------------------------------------------------------------+\n");
     printf("|           Content of all Registers after Simulation           |\n");
     printf("+---------------------------------------------------------------+\n");
@@ -697,8 +670,11 @@ int main(){
 
     }
 
-    //print full content of inst memory after last clock cycle:
-    printf("+---------------------------------------------------------------+\n");
+
+}
+
+void printInstMem(){
+printf("+---------------------------------------------------------------+\n");
     printf("|      Content of all Instruction Memory after Simulation       |\n");
     printf("+---------------------------------------------------------------+\n");
     printf("|            Position             |            Value            |\n");
@@ -734,10 +710,83 @@ int main(){
         
     }
 
+
+}
+
+void printDataMem(){
+printf("+---------------------------------------------------------------+\n");
+    printf("|          Content of all Data Memory after Simulation          |\n");
+    printf("+---------------------------------------------------------------+\n");
+    printf("|            Position             |            Value            |\n");
+    printf("+---------------------------------------------------------------+\n");
+    for(int i = 0; i<numData; i++){
+        if(i<1000){
+            if(dataMem[i]<10){
+                printf("|               MEM[%d]            |              %d              |\n",i, dataMem[i]);
+                printf("|---------------------------------------------------------------|\n");
+
+            }
+            else{
+                printf("|               MEM[%d]            |             %d              |\n",i, dataMem[i]);
+                printf("|---------------------------------------------------------------|\n");
+
+            }
+            
+
+        }
+        else{
+            if(dataMem[i]<10){
+                printf("|               MEM[%d]           |              %d              |\n",i, dataMem[i]);
+                printf("|---------------------------------------------------------------|\n");
+            }
+            else{
+                printf("|               MEM[%d]           |             %d              |\n",i, dataMem[i]);
+                printf("|---------------------------------------------------------------|\n");
+
+            }
+            
+
+        }
+        
+    }
+
+
+}
+
+int main(){
+
+    // char test[] = "R1";
+    // char test2[] = "R12";
+
+    // int num1 = atoi(test + 1);
+    // int num2 = atoi(test2 +1);
+
+    // printf("R%d",num1);
+    // printf("R%d",num2);
+
+    // short int op = 1<<12;//0001000000000000
+    // short int r1 = 2<<6;//0000000010000000
+    // short int r2 = 3;//0000000000000011
+    // short int parsed = op | r1 | r2;//0001000010000011 - 4227
+    // printf("%d",parsed);
+    
+     parseandStore("program.txt");
+
+     while (pc < (3+(cycles-1)*1)) {
+        printf("\n      --- Cycle %d ---\n", pc + 1);
+        pipeline();
+    }
+
+    //print all register values after last clock cycle:
+    // printRegisters();
+    
+    //print full content of inst memory after last clock cycle:
+    // printInstMem();
+
     //print full content of data memory after last clock cycle:
+    // printDataMem();
 
    
-
     // decode(0b0001000010000011);
 
     // short int output = 258;
