@@ -528,14 +528,14 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
 
     // Update SREG 
         C = C<<4;
-        printf("%d\n", C);
+        printf("%dCarry Flag:\n", C);
         V = V<<3;
-        printf("%d\n", V);
+        printf("%d Overflow Flag:\n", V);
         N = N<<2;
-        printf("%d\n", N);
+        printf("%dNegaitve Flag:\n", N);
         S = S<<1;
-        printf("%d\n", S);
-        printf("%d\n",Z);
+        printf("%dSign Flag:\n", S);
+        printf("%dZero Flag:\n",Z);
         SREG = C | V | N | S | Z;
         printf("SREG: ");
         for (int i = 7; i >= 0; i--) {
