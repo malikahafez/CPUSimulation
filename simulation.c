@@ -504,19 +504,27 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
         break;
 
         default:
-            printf("Invalid operation code.\n");
+            printf("Operation does not exist.\n");
             break;
     }
 
-    // Update SREG if applicable
-    // if (sreg_should_update) {
-        SREG = (C << 4) | (V << 3) | (N << 2) | (S << 1) | Z;
+    // Update SREG 
+        C = C<<4;
+        printf("%d\n", C);
+        V = V<<3;
+        printf("%d\n", V);
+        N = N<<2;
+        printf("%d\n", N);
+        S = S<<1;
+        printf("%d\n", S);
+        printf("%d\n",Z);
+        SREG = C | V | N | S | Z;
         printf("SREG: ");
         for (int i = 7; i >= 0; i--) {
             printf("%d", (SREG >> i) & 1);
         }
         printf("\n");
-    // }
+
 }
 
 
