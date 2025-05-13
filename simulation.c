@@ -438,7 +438,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
 
             regFile[rs] = res;
             printf("R%d value changed to %d\n",rs,res);
-            V = ((a > 0 && b < 0 && res < 0) || (a < 0 && b > 0 && res > 0));
+            V = ((a > 0 && b < 0 && res <= 0) || (a < 0 && b > 0 && res >= 0));
             N = (res < 0);
             Z = (res == 0);
             S = N ^ V;
@@ -563,15 +563,15 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
 
     // Update SREG 
         if(sreg_updated == true){
+            printf("Carry Flag:%d\n", C);
             C = C<<4;
-            printf("%dCarry Flag:\n", C);
+            printf("Overflow Flag:%d \n", V);
             V = V<<3;
-            printf("%d Overflow Flag:\n", V);
+            printf("Negative Flag:%d\n", N);
             N = N<<2;
-            printf("%dNegative Flag:\n", N);
+           printf("Sign Flag:%d\n", S);
             S = S<<1;
-            printf("%dSign Flag:\n", S);
-            printf("%dZero Flag:\n",Z);
+            printf("Zero Flag:%d\n",Z);
             SREG = C | V | N | S | Z;
             printf("SREG: ");
             for (int i = 7; i >= 0; i--) {
