@@ -407,87 +407,111 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
         uint8_t Z = 0; 
     //will change value of SREG based on the operation
 
-    // bool sreg_should_update = false;
+    bool sreg_updated = false;
 
     switch(opcode) {
         case 0: // ADD - affects C,V,N,S,Z
         {
+            printf("ADD instruction between R%d and R%d:\n", rs, rt_imm_addr);
             uint16_t result = (uint8_t)regFile[rs] + (uint8_t)regFile[rt_imm_addr];
             int8_t a = regFile[rs];
             int8_t b = regFile[rt_imm_addr];
             int8_t res = a + b;
 
             regFile[rs] = res;
+            printf("R%d value changed to %d\n",rs,res);
             C = (result > 0xFF);
             V = ((a > 0 && b > 0 && res <= 0) || (a < 0 && b < 0 && res >= 0));
             N = (res < 0);
             Z = (res == 0);
             S = N ^ V;
-            // sreg_should_update = true;
+            sreg_updated = true;
         }
         break;
 
         case 1: // SUB - affects V,N,S,Z
         {
+            printf("SUB instruction between R%d and R%d:\n", rs, rt_imm_addr);
             int8_t a = regFile[rs];
             int8_t b = regFile[rt_imm_addr];
             int8_t res = a - b;
 
             regFile[rs] = res;
+            printf("R%d value changed to %d\n",rs,res);
             V = ((a > 0 && b < 0 && res < 0) || (a < 0 && b > 0 && res > 0));
             N = (res < 0);
             Z = (res == 0);
             S = N ^ V;
-            // sreg_should_update = true;
+            sreg_updated = true;
+
         }
         break;
 
         case 2: // MUL - affects N,Z
         {
+            printf("MUL instruction between R%d and R%d:\n", rs, rt_imm_addr);
             int16_t result = regFile[rs] * regFile[rt_imm_addr];
             int8_t res = (int8_t)result;
             regFile[rs] = res;
-
+            printf("R%d value changed to %d\n",rs,res);
             N = (res < 0);
             Z = (res == 0);
-            // sreg_should_update = true;
+            sreg_updated = true;
+
         }
         break;
 
         case 3: // MOVI - does NOT affect flags
+            printf("MOVI instruction between R%d and immediate = %d:\n", rs, rt_imm_addr);
             regFile[rs] = (int8_t)rt_imm_addr;
+            printf("R%d value changed to %d\n",rs,(int8_t)rt_imm_addr);
         break;
 
         case 4: // BEQZ - does NOT affect flags
+            printf("BEQZ instruction using R%d and immediate = %d:\n", rs, rt_imm_addr);
             if (regFile[rs] == 0) {
                 pc += rt_imm_addr;
+                printf("Branch occured: pc value changed to %d\n",pc);
             }
+            else{
+                printf("Branch did NOT occur: pc value did NOT change\n");
+            }
+            
+
         break;
 
         case 5: // ANDI - affects N,Z
         {
+            printf("ANDI instruction between R%d and immediate = %d:\n", rs, rt_imm_addr);
             int8_t res = regFile[rs] & (int8_t)rt_imm_addr;
             regFile[rs] = res;
+            printf("R%d value changed to %d\n",rs,res);
             N = (res < 0);
             Z = (res == 0);
-            // sreg_should_update = true;
+            sreg_updated = true;
+
         }
         break;
 
         case 6: // EOR - affects N,Z
         {
+            printf("EOR instruction between R%d and R%d:\n", rs, rt_imm_addr);
             int8_t res = regFile[rs] ^ regFile[rt_imm_addr];
             regFile[rs] = res;
+            printf("R%d value changed to %d\n",rs,res);
             N = (res < 0);
             Z = (res == 0);
-            // sreg_should_update = true;
+            sreg_updated = true;
+
         }
         break;
 
         case 7: // BR - does NOT affect flags
+            printf("BR instruction using R%d and R%d:\n", rs, rt_imm_addr);
             r1val = (0b0000000000000000 | regFile[rs])<<8;//0bRRRRRRRR00000000
             r2val = 0b0000000000000000 | regFile[rt_imm_addr];//0b00000000RRRRRRRR
             pc = r1val | r2val;//0bRRRRRRRRRRRRRRRR
+            printf("pc value changed to %d\n",pc);
             // r1val = regFile[rs] << 6;
             // r2val = regFile[rt_imm_addr];
             // pc = r1val | r2val;
@@ -495,30 +519,41 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
 
         case 8: // SAL - affects N,Z
         {
+            printf("SAL instruction between R%d and immediate = %d:\n", rs, rt_imm_addr);
             int8_t res = regFile[rs] << rt_imm_addr;
             regFile[rs] = res;
+            printf("R%d value changed to %d\n",rs,res);
             N = (res < 0);
             Z = (res == 0);
-            // sreg_should_update = true;
+            sreg_updated = true;
+
         }
         break;
 
         case 9: // SAR - affects N,Z
         {
+            printf("SAR instruction between R%d and immediate = %d:\n", rs, rt_imm_addr);
             int8_t res = regFile[rs] >> rt_imm_addr;
             regFile[rs] = res;
+            printf("R%d value changed to %d\n",rs,res);
             N = (res < 0);
             Z = (res == 0);
-            // sreg_should_update = true;
+            sreg_updated = true;
+
         }
         break;
 
         case 10: // LDR - does NOT affect flags
+            printf("LDR instruction using R%d and address = %d:\n", rs, rt_imm_addr);
             regFile[rs] = dataMem[rt_imm_addr];
+            printf("R%d value changed to %d\n",rs, dataMem[rt_imm_addr]);
+
         break;
 
         case 11: // STR - does NOT affect flags
+            printf("STR instruction using R%d and address = %d:\n", rs, rt_imm_addr);
             dataMem[rt_imm_addr] = regFile[rs];
+            printf("Value in position %d in data memory changed to %d\n",rt_imm_addr, regFile[rs]);
         break;
 
         default:
@@ -527,21 +562,27 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
     }
 
     // Update SREG 
-        C = C<<4;
-        printf("%dCarry Flag:\n", C);
-        V = V<<3;
-        printf("%d Overflow Flag:\n", V);
-        N = N<<2;
-        printf("%dNegaitve Flag:\n", N);
-        S = S<<1;
-        printf("%dSign Flag:\n", S);
-        printf("%dZero Flag:\n",Z);
-        SREG = C | V | N | S | Z;
-        printf("SREG: ");
-        for (int i = 7; i >= 0; i--) {
-            printf("%d", (SREG >> i) & 1);
+        if(sreg_updated == true){
+            C = C<<4;
+            printf("%dCarry Flag:\n", C);
+            V = V<<3;
+            printf("%d Overflow Flag:\n", V);
+            N = N<<2;
+            printf("%dNegative Flag:\n", N);
+            S = S<<1;
+            printf("%dSign Flag:\n", S);
+            printf("%dZero Flag:\n",Z);
+            SREG = C | V | N | S | Z;
+            printf("SREG: ");
+            for (int i = 7; i >= 0; i--) {
+                printf("%d", (SREG >> i) & 1);
+            }
+            printf("\n");
         }
-        printf("\n");
+        else{
+            printf("SREG Value did not change\n");
+        }
+        
 
 }
 
