@@ -17,6 +17,13 @@ typedef struct {
     bool valid;
 } ID_EX_Stage;
 //instruction memory
+// Global or static variables
+IF_ID_Stage if_id = {.valid = false};
+ID_EX_Stage id_ex = {.valid = false};
+void flushPipeline() {
+    if_id.valid = false;
+    id_ex.valid = false;
+}//to be added in execute stage
 short int instMem[1024] = {0};//16-bit inst
 int numInst = sizeof(instMem)/sizeof(short int);
 int instPtr = 0;
@@ -542,9 +549,7 @@ void fetch(){
         }
        
 }
-// Global or static variables
-IF_ID_Stage if_id = {.valid = false};
-ID_EX_Stage id_ex = {.valid = false};
+
 
 
 void pipeline() {
@@ -595,7 +600,7 @@ int main(){
     // short int r2 = 3;//0000000000000011
     // short int parsed = op | r1 | r2;//0001000010000011 - 4227
     // printf("%d",parsed);
-
+    
      parseandStore("program.txt");
 
      while (pc < (3+(cycles-1)*1)) {
@@ -640,7 +645,7 @@ int main(){
 
     // printf("===== ADD Test (no Carry with Overflow) =====\n");
     // regFile[25] = 64; // Max positive value for int8_t
-    // regFile[26] = 64;
+    // regFile[26] = 64; 
     // execute(25, 26, 0); // ADD r1 = r1 + r2
     // printf("Result in r1: %d\n", regFile[1]);
     // printf("Expected: 0, V=1, C=0, N=1, S=0, Z=0\n\n");
