@@ -16,6 +16,56 @@ typedef struct {
     short int instruction;
     bool valid;
 } ID_EX_Stage;
+
+
+//PIPELINING REGISTERS Structs
+//register after fetching
+typedef struct{
+    short int incrpc;//incremented pc value
+    short int inst;//instruction fetched from memory
+}IF_ID_REG;
+//register after decoding
+typedef struct{
+    short int incrpc;//incremented pc value
+    short int inst;//instruction fetched from memory
+    short int opcode;//opcode extracted from instruction
+    short int rS;//address of RS in register file
+    short int rT;//address of RT in register file
+    int8_t rSval;//value of RS
+    int8_t rTval;//value of RT
+    short int immAdr;//address/immediate extracted from the instruction
+}ID_EX_REG;
+//register after executing
+typedef struct{
+    short int incrpc;//incremented pc value
+    short int inst;//instruction fetched from memory
+    short int opcode;//both I and R
+    short int rS;//both I and R
+    short int rT;//R
+    short int immAdr;//address/immediate extracted from the instruction
+    int8_t ALUres;//value of result from ALU in Execute stage
+    int8_t rSval;//value of RS
+    int8_t rTval;//value of RT
+    int8_t sregval;//value of SREG after executing
+    bool isImmediate;//is the instruction I type? if not then it is R type
+}EX_MEM_REG;
+//register after write back
+typedef struct{
+    short int incrpc;//incremented pc value
+    short int inst;//instruction fetched from memory
+    short int opcode;//both I and R
+    short int rS;//both I and R
+    short int rT;//R
+    short int immAdr;//address/immediate extracted from the instruction
+    int8_t ALUres;//value of result from ALU in Execute stage
+    int8_t rSval;//value of RS
+    int8_t rTval;//value of RT
+    int8_t sregval;//value of SREG after executing
+    bool isImmediate;//is the instruction I type? if not then it is R type
+    int8_t memval;
+}MEM_WB_REG;
+
+
 //instruction memory
 // Global or static variables
 IF_ID_Stage if_id = {.valid = false};
@@ -24,6 +74,13 @@ void flushPipeline() {
     if_id.valid = false;
     id_ex.valid = false;
 }//to be added in execute stage
+
+//PIPELINING REGISTERS:
+IF_ID_REG IF_ID_R;
+ID_EX_REG ID_EX_R;
+EX_MEM_REG EX_MEM_R;
+MEM_WB_REG MEM_WB_R;
+
 short int instMem[1024] = {0};//16-bit inst
 int numInst = sizeof(instMem)/sizeof(short int);
 int instPtr = 0;
@@ -258,6 +315,16 @@ void decode(short int instruction){
 
     rSValue = regFile[rS];//value in source register in register file
     rTValue = regFile[rT];//value in target register in register file
+
+    //updating ID/EX pipelining register
+    ID_EX_R.incrpc = pc;
+    ID_EX_R.inst = instruction;
+    ID_EX_R.immAdr = immAdr;
+    ID_EX_R.opcode = opcode;
+    ID_EX_R.rS = rS;
+    ID_EX_R.rT = rT;
+    ID_EX_R.rSval = rSValue;
+    ID_EX_R.rTval = rTValue;
 
      printf("Instruction %i\n",pc);
 		printf("opcode = %i\n",opcode);
@@ -598,7 +665,11 @@ void fetch(){
 
             decode(instruction);
             pc++;
-             
+
+            //updating IF/ID register
+            IF_ID_R.incrpc = pc;
+            IF_ID_R.inst = instruction;
+
         }
        
 }
