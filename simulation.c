@@ -35,7 +35,7 @@ typedef struct{
     int8_t rTval;//value of RT
     short int immAdr;//address/immediate extracted from the instruction
 }ID_EX_REG;
-//register after executing
+//register after executing - NOTE: Do we even need this register???*****
 typedef struct{
     short int incrpc;//incremented pc value
     short int inst;//instruction fetched from memory
@@ -317,8 +317,8 @@ void decode(short int instruction){
     rTValue = regFile[rT];//value in target register in register file
 
     //updating ID/EX pipelining register
-    ID_EX_R.incrpc = pc;
-    ID_EX_R.inst = instruction;
+    ID_EX_R.incrpc = IF_ID_R.incrpc;
+    ID_EX_R.inst = IF_ID_R.inst;
     ID_EX_R.immAdr = immAdr;
     ID_EX_R.opcode = opcode;
     ID_EX_R.rS = rS;
@@ -467,6 +467,12 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
     // int8_t r1val, r2val;
     short int r1val;
     short int r2val;
+
+    // EX_MEM_R.opcode = ID_EX_R.opcode;
+    // EX_MEM_R.rS = ID_EX_R.rS;
+    // EX_MEM_R.rT = ID_EX_R.rT;
+    // EX_MEM_R.immAdr = ID_EX_R.immAdr;
+    // EX_MEM_R.incrpc = ID_EX_R.incrpc;
     
     //sreg flags
     //0b0000CVNSZ
@@ -487,6 +493,9 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             int8_t a = regFile[rs];
             int8_t b = regFile[rt_imm_addr];
             int8_t res = a + b;
+            // EX_MEM_R.ALUres = res;
+            // EX_MEM_R.rSval = a;
+            // EX_MEM_R.rTval = b;
 
             regFile[rs] = res;
             printf("        R%d value changed to %d\n",rs,res);
@@ -496,6 +505,8 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             Z = (res == 0);
             S = N ^ V;
             sreg_updated = true;
+
+            // EX_MEM_R.isImmediate = false;
         }
         break;
 
@@ -506,6 +517,10 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             int8_t b = regFile[rt_imm_addr];
             int8_t res = a - b;
 
+            // EX_MEM_R.ALUres = res;
+            // EX_MEM_R.rSval = a;
+            // EX_MEM_R.rTval = b;
+
             regFile[rs] = res;
             printf("        R%d value changed to %d\n",rs,res);
             V = ((a > 0 && b > 0 && res <= 0) || (a < 0 && b < 0 && res >= 0));
@@ -514,6 +529,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             S = N ^ V;
             sreg_updated = true;
 
+            // EX_MEM_R.isImmediate = false;
         }
         break;
 
@@ -522,19 +538,29 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             printf("MUL instruction between R%d = %d and R%d = %d:\n", rs, rt_imm_addr,regFile[rs],regFile[rt_imm_addr]);
             int16_t result = regFile[rs] * regFile[rt_imm_addr];
             int8_t res = (int8_t)result;
+
+            // EX_MEM_R.ALUres = res;
+            // EX_MEM_R.rSval = regFile[rs];
+            // EX_MEM_R.rTval = regFile[rt_imm_addr];
+
             regFile[rs] = res;
             printf("        R%d value changed to %d\n",rs,res);
             N = (res < 0);
             Z = (res == 0);
             sreg_updated = true;
 
+            // EX_MEM_R.isImmediate = false;
         }
         break;
 
         case 3: // MOVI - does NOT affect flags
             printf("MOVI instruction between R%d = %d and immediate = %d:\n", rs, rt_imm_addr,regFile[rs]);
+            EX_MEM_R.rSval = regFile[rs];
+            EX_MEM_R.rTval = regFile[rt_imm_addr];
+
             regFile[rs] = (int8_t)rt_imm_addr;
             printf("        R%d value changed to %d\n",rs,(int8_t)rt_imm_addr);
+            // EX_MEM_R.isImmediate = true;
         break;
 
         case 4: // BEQZ - does NOT affect flags
@@ -546,8 +572,9 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             else{
                 printf("        Branch did NOT occur: PC value did NOT change\n");
             }
-            
-
+            // EX_MEM_R.rSval = regFile[rs];
+            // EX_MEM_R.rTval = regFile[rt_imm_addr];
+            // EX_MEM_R.isImmediate = true;
         break;
 
         case 5: // ANDI - affects N,Z
@@ -559,7 +586,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             N = (res < 0);
             Z = (res == 0);
             sreg_updated = true;
-
+            // EX_MEM_R.isImmediate = true;
         }
         break;
 
@@ -572,7 +599,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             N = (res < 0);
             Z = (res == 0);
             sreg_updated = true;
-
+            // EX_MEM_R.isImmediate = false;
         }
         break;
 
@@ -585,6 +612,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             // r1val = regFile[rs] << 6;
             // r2val = regFile[rt_imm_addr];
             // pc = r1val | r2val;
+            // EX_MEM_R.isImmediate = false;
         break;
 
         case 8: // SAL - affects N,Z
@@ -596,7 +624,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             N = (res < 0);
             Z = (res == 0);
             sreg_updated = true;
-
+            // EX_MEM_R.isImmediate = true;
         }
         break;
 
@@ -609,7 +637,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             N = (res < 0);
             Z = (res == 0);
             sreg_updated = true;
-
+            // EX_MEM_R.isImmediate = true;
         }
         break;
 
@@ -617,13 +645,14 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             printf("LDR instruction using R%d = %d and address = %d:\n", rs, rt_imm_addr, regFile[rs]);
             regFile[rs] = dataMem[rt_imm_addr];
             printf("        R%d value changed to %d\n",rs, dataMem[rt_imm_addr]);
-
+            // EX_MEM_R.isImmediate = true;
         break;
 
         case 11: // STR - does NOT affect flags
             printf("STR instruction using R%d = %d and address = %d:\n", rs, rt_imm_addr, regFile[rs]);
             dataMem[rt_imm_addr] = regFile[rs];
             printf("        Value in position %d in data memory changed to %d\n",rt_imm_addr, regFile[rs]);
+            // EX_MEM_R.isImmediate = true;
         break;
 
         default:
@@ -653,6 +682,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
         else{
             printf("SREG Value did NOT change\n");
         }
+        // EX_MEM_R.sregval = SREG;
         
 
 }
