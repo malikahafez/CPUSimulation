@@ -49,21 +49,21 @@ typedef struct{
     int8_t sregval;//value of SREG after executing
     bool isImmediate;//is the instruction I type? if not then it is R type
 }EX_MEM_REG;
-//register after write back
-typedef struct{
-    short int incrpc;//incremented pc value
-    short int inst;//instruction fetched from memory
-    short int opcode;//both I and R
-    short int rS;//both I and R
-    short int rT;//R
-    short int immAdr;//address/immediate extracted from the instruction
-    int8_t ALUres;//value of result from ALU in Execute stage
-    int8_t rSval;//value of RS
-    int8_t rTval;//value of RT
-    int8_t sregval;//value of SREG after executing
-    bool isImmediate;//is the instruction I type? if not then it is R type
-    int8_t memval;
-}MEM_WB_REG;
+//register after write back - NOTE: There is no write back stage in this package****
+// typedef struct{
+//     short int incrpc;//incremented pc value
+//     short int inst;//instruction fetched from memory
+//     short int opcode;//both I and R
+//     short int rS;//both I and R
+//     short int rT;//R
+//     short int immAdr;//address/immediate extracted from the instruction
+//     int8_t ALUres;//value of result from ALU in Execute stage
+//     int8_t rSval;//value of RS
+//     int8_t rTval;//value of RT
+//     int8_t sregval;//value of SREG after executing
+//     bool isImmediate;//is the instruction I type? if not then it is R type
+//     int8_t memval;
+// }MEM_WB_REG;
 
 
 //instruction memory
@@ -79,7 +79,7 @@ void flushPipeline() {
 IF_ID_REG IF_ID_R;
 ID_EX_REG ID_EX_R;
 EX_MEM_REG EX_MEM_R;
-MEM_WB_REG MEM_WB_R;
+// MEM_WB_REG MEM_WB_R;
 
 short int instMem[1024] = {0};//16-bit inst
 int numInst = sizeof(instMem)/sizeof(short int);
