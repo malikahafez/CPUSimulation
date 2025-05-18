@@ -23,6 +23,7 @@ typedef struct {
 typedef struct{
     short int incrpc;//incremented pc value
     short int inst;//instruction fetched from memory
+    bool valid;
 }IF_ID_REG;
 //register after decoding
 typedef struct{
@@ -33,7 +34,8 @@ typedef struct{
     short int rT;//address of RT in register file
     int8_t rSval;//value of RS
     int8_t rTval;//value of RT
-    short int immAdr;//address/immediate extracted from the instruction
+    short int immAdr;
+    bool valid;//address/immediate extracted from the instruction
 }ID_EX_REG;
 //register after executing - NOTE: Do we even need this register???*****
 typedef struct{
@@ -70,9 +72,12 @@ typedef struct{
 // Global or static variables
 IF_ID_Stage if_id = {.valid = false};
 ID_EX_Stage id_ex = {.valid = false};
+IF_ID_REG IF_ID_R;
+ID_EX_REG ID_EX_R;
+EX_MEM_REG EX_MEM_R;
 void flushPipeline() {
-    if_id.valid = false;
-    id_ex.valid = false;
+   IF_ID_R.valid = false;
+   ID_EX_R.valid = false;
 }//to be added in execute stage
 
 //PIPELINING REGISTERS:
@@ -92,7 +97,7 @@ int numData = sizeof(dataMem)/sizeof(int8_t);
 //0b00000000
 
 //register file (64 GPRs)
-int8_t regFile[64] = {0};//8-bit registers
+int8_t regFile[64] = {0,0,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};//8-bit registers
 int numReg = sizeof(regFile)/sizeof(int8_t);
 
 //0b00000000
@@ -168,13 +173,14 @@ void parseandStore(char* filename) {
             opcode = 3;
             opcode = opcode<<12;//put opcode in first 4 bits
 
-            char *im = strtok(NULL, " \r\n");//IMM
             char *R1 = strtok(NULL, " \r\n");//R1
+            char *im = strtok(NULL, " \r\n");//IMM
+
                 r1 = (short int) atoi(R1 + 1); // R1 -> 1
                 r1 = r1<<6;
 
 
-            immediate = (short int) atoi(im + 1); 
+            immediate = (short int) atoi(im);  
             parsed = opcode | r1 | immediate;
 
         }
@@ -182,12 +188,13 @@ void parseandStore(char* filename) {
             opcode = 4;
             opcode = opcode<<12;//put opcode in first 4 bits
 
-            char *im = strtok(NULL, " \r\n");//IMM
             char *R1 = strtok(NULL, " \r\n");//R1
+            char *im = strtok(NULL, " \r\n");//IMM
+
                 r1 = (short int) atoi(R1 + 1); // R1 -> 1
                 r1 = r1<<6;
 
-            immediate = (short int) atoi(im + 1); 
+            immediate = (short int) atoi(im); 
             parsed = opcode | r1 | immediate;
 
         }
@@ -195,12 +202,14 @@ void parseandStore(char* filename) {
             opcode = 5;
             opcode = opcode<<12;//put opcode in first 4 bits
 
-            char *im = strtok(NULL, " \r\n");//IMM
             char *R1 = strtok(NULL, " \r\n");//R1
+            char *im = strtok(NULL, " \r\n");//IMM
+
                 r1 = (short int) atoi(R1 + 1); // R1 -> 1
                 r1 = r1<<6;
 
-            immediate = (short int) atoi(im + 1); 
+                immediate = (short int) atoi(im); 
+
             parsed = opcode | r1 | immediate;
 
         }
@@ -236,12 +245,14 @@ void parseandStore(char* filename) {
             opcode = 8;
             opcode = opcode<<12;//put opcode in first 4 bits
 
-            char *im = strtok(NULL, " \r\n");//IMM
             char *R1 = strtok(NULL, " \r\n");//R1
+            char *im = strtok(NULL, " \r\n");//IMM
+
                 r1 = (short int) atoi(R1 + 1); // R1 -> 1
                 r1 = r1<<6;
 
-            immediate = (short int) atoi(im + 1); 
+                immediate = (short int) atoi(im); 
+ 
             parsed = opcode | r1 | immediate;
 
         }
@@ -249,12 +260,14 @@ void parseandStore(char* filename) {
             opcode = 9;
             opcode = opcode<<12;//put opcode in first 4 bits
 
-            char *im = strtok(NULL, " \r\n");//IMM
             char *R1 = strtok(NULL, " \r\n");//R1
+            char *im = strtok(NULL, " \r\n");//IMM
+
                 r1 = (short int) atoi(R1 + 1); // R1 -> 1
                 r1 = r1<<6;
 
-            immediate = (short int) atoi(im + 1);
+            immediate = (short int) atoi(im); 
+
             parsed = opcode | r1 | immediate;
 
         }
@@ -262,12 +275,13 @@ void parseandStore(char* filename) {
             opcode = 10;
             opcode = opcode<<12;//put opcode in first 4 bits
 
-            char *im = strtok(NULL, " \r\n");//IMM
             char *R1 = strtok(NULL, " \r\n");//R1
+            char *im = strtok(NULL, " \r\n");//IMM
+
                 r1 = (short int) atoi(R1 + 1); // R1 -> 1
                 r1 = r1<<6;
 
-            immediate = (short int) atoi(im + 1); 
+            immediate = (short int) atoi(im); 
             parsed = opcode | r1 | immediate;
 
         }
@@ -275,13 +289,14 @@ void parseandStore(char* filename) {
             opcode = 11;
             opcode = opcode<<12;//put opcode in first 4 bits
 
-            char *im = strtok(NULL, " \r\n");//IMM
             char *R1 = strtok(NULL, " \r\n");//R1
+            char *im = strtok(NULL, " \r\n");//IMM
+
                 r1 = (short int) atoi(R1 + 1); // R1 -> 1
                 r1 = r1<<6;
 
 
-            immediate = (short int) atoi(im + 1); 
+            immediate = (short int) atoi(im); 
             parsed = opcode | r1 | immediate;
 
         }
@@ -325,7 +340,7 @@ void decode(short int instruction){
     ID_EX_R.rT = rT;
     ID_EX_R.rSval = rSValue;
     ID_EX_R.rTval = rTValue;
-
+    
      printf("Instruction %i\n",pc);
 		printf("opcode = %i\n",opcode);
 		printf("rs = %i\n",rS);
@@ -524,7 +539,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
 
             regFile[rs] = res;
             printf("        R%d value changed to %d\n",rs,res);
-            V = ((a > 0 && b > 0 && res <= 0) || (a < 0 && b < 0 && res >= 0));
+            V = ((a < 0 && b > 0 && res >=0) || (a > 0 && b < 0 && res <= 0));
             N = (res < 0);
             Z = (res == 0);
             S = N ^ V;
@@ -570,8 +585,11 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
             printf("BEQZ instruction using R%d = %d and immediate = %d:\n", rs, regFile[rs],rt_imm_addr);
 
             if (regFile[rs] == 0) {
+                pc=ID_EX_R.incrpc;
+            
                 pc += rt_imm_addr;
                 printf("        Branch occured: PC value changed to %d\n",pc);
+                flushPipeline();
             }
             else{
                 printf("        Branch did NOT occur: PC value did NOT change\n");
@@ -614,7 +632,9 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
 
             r1val = (0b0000000000000000 | regFile[rs])<<8;//0bRRRRRRRR00000000
             r2val = 0b0000000000000000 | regFile[rt_imm_addr];//0b00000000RRRRRRRR
+
             pc = r1val | r2val;//0bRRRRRRRRRRRRRRRR
+            flushPipeline();
             printf("        PC value changed to %d\n",pc);
             // r1val = regFile[rs] << 6;
             // r2val = regFile[rt_imm_addr];
@@ -719,32 +739,35 @@ void fetch(){
 
 void pipeline() {
     // Execute stage
-    if (id_ex.valid) {
-        printf("Executing instruction: %d \n", id_ex.instruction);
-        short int opcode = (0b1111000000000000 & id_ex.instruction)>>12;
-        short int rs = (0b0000111111000000 & id_ex.instruction)>>6;
-        short int rt_imm_addr = (0b0000000000111111 & id_ex.instruction);
-        execute(rs, rt_imm_addr, opcode);
+    if (ID_EX_R.valid) {
+        printf("Executing instruction: %d \n", ID_EX_R.inst);
+        short int opcode = (0b1111000000000000 & ID_EX_R.inst)>>12;
+        short int rs = (0b0000111111000000 & ID_EX_R.inst)>>6;
+        short int rt_imm_addr = (0b0000000000111111 & ID_EX_R.inst);
+        execute(ID_EX_R.rS, ID_EX_R.rT, ID_EX_R.opcode);
         printf("------------------------------\n");
-        id_ex.valid = false; // Instruction has been executed
+       ID_EX_R.valid = false; // Instruction has been executed
     }
 
     // Decode stage
-    if (if_id.valid) {
+    if (IF_ID_R.valid) {
     
-        id_ex.instruction = if_id.instruction;
+        IF_ID_R.inst =  IF_ID_R.inst;
            printf("Decoding instruction: %d \n", id_ex.instruction);
-        id_ex.valid = true;
-        decode(id_ex.instruction);
-        if_id.valid = false;
+        ID_EX_R.valid = true;
+        decode( IF_ID_R.inst);
+       IF_ID_R.valid = false;
     }
 
     // Fetch stage
     if (pc < (3+(cycles-1)*1)) {
         printf("Fetching instruction at PC: %d \n", pc);
         printf("------------------------------\n");
-        if_id.instruction = instMem[pc++];
-        if_id.valid = true;
+
+        IF_ID_R.inst = instMem[pc++];
+        IF_ID_R.incrpc = pc;
+        IF_ID_R.valid = true;
+       
     }
 }
 
@@ -887,9 +910,9 @@ int main(){
     // printf("%d",parsed);
     
      parseandStore("program.txt");
-
-     while (pc < (3+(cycles-1)*1)) {
-        printf("\n      --- Cycle %d ---\n", pc + 1);
+int counter=1;
+     while (pc< (3+(cycles-1)*1)) {
+        printf("\n      --- Cycle %d ---\n", counter++);
         pipeline();
     }
 
