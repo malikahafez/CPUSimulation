@@ -617,7 +617,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
         {
             printf("EOR instruction between R%d = %d and R%d = %d:\n", rs, regFile[rs],rt_imm_addr,regFile[rt_imm_addr]);
 
-            int8_t res = regFile[rs] | regFile[rt_imm_addr];
+            int8_t res = regFile[rs] ^ regFile[rt_imm_addr];
             regFile[rs] = res;
             printf("        R%d value changed to %d\n",rs,res);
             N = (res < 0);
