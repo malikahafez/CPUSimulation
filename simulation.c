@@ -917,13 +917,13 @@ int counter=1;
     }
 
     //print all register values after last clock cycle:
-    // printRegisters();
+    printRegisters();
     
     //print full content of inst memory after last clock cycle:
-    // printInstMem();
+    printInstMem();
 
     //print full content of data memory after last clock cycle:
-    // printDataMem();
+    printDataMem();
 
    
     // decode(0b0001000010000011);
