@@ -92,7 +92,7 @@ int instPtr = 0;
 //0b0000000000000000
 
 //data memory
-int8_t dataMem[2048] = {0};//8-bit data
+int8_t dataMem[2048] = {1,2,3,4};//8-bit data
 int numData = sizeof(dataMem)/sizeof(int8_t);
 //0b00000000
 
@@ -617,7 +617,7 @@ void execute(short int rs, short int rt_imm_addr, short int opcode) {
         {
             printf("EOR instruction between R%d = %d and R%d = %d:\n", rs, regFile[rs],rt_imm_addr,regFile[rt_imm_addr]);
 
-            int8_t res = regFile[rs] ^ regFile[rt_imm_addr];
+            int8_t res = regFile[rs] | regFile[rt_imm_addr];
             regFile[rs] = res;
             printf("        R%d value changed to %d\n",rs,res);
             N = (res < 0);
